@@ -35,7 +35,7 @@
     <section>
       <h2>Conversión numérica</h2>
       <p>Ingresa un entero entre 0 y 65 535 en base 2, 8, 10 o 16.</p>
-      <form method="post" novalidate>
+      <form id="number-form" method="post" novalidate>
         {% csrf_token %}
         <label for="{{ number_form.number.id_for_label }}">{{ number_form.number.label }}</label>
         {{ number_form.number }}
@@ -86,5 +86,15 @@
   </div>
   <footer>Aplicación educativa con Django · El binario se completa a grupos de 8 bits.</footer>
 </main>
+<script>
+  const numberForm = document.getElementById("number-form");
+  const numberInput = document.getElementById("id_number-number");
+  const baseSelect = document.getElementById("id_number-base");
+  baseSelect.addEventListener("change", () => {
+    if (numberInput.value.trim()) {
+      numberForm.requestSubmit(numberForm.querySelector('[name="number-submit"]'));
+    }
+  });
+</script>
 </body>
 </html>
