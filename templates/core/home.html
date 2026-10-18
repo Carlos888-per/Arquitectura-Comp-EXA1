@@ -1,14 +1,90 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Analizador</title>
-  </head>
-  <body>
-    <main>
-      <h1>Analizador</h1>
-      <p>Tu proyecto Django ya está funcionando.</p>
-    </main>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analizador de representación de datos</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#59677e; --line:#dce3ed; --blue:#3158c9; --pale:#f4f7fc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--pale); color:var(--ink); font:16px/1.5 system-ui,Segoe UI,sans-serif; }
+    main { max-width:1000px; margin:0 auto; padding:44px 22px 64px; }
+    header { margin-bottom:28px; } h1 { margin:0 0 8px; font-size:clamp(1.8rem,4vw,2.7rem); line-height:1.15; }
+    p { color:var(--muted); margin-top:0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr)); gap:20px; align-items:start; }
+    section { background:white; border:1px solid var(--line); border-radius:16px; padding:24px; box-shadow:0 8px 26px #25375a0a; }
+    h2 { margin:0 0 16px; font-size:1.35rem; } label { display:block; font-weight:650; margin:14px 0 6px; }
+    input,select { width:100%; border:1px solid #bbc7d8; border-radius:8px; padding:11px 12px; font:inherit; color:var(--ink); background:white; }
+    button { margin-top:18px; padding:11px 16px; border:0; border-radius:8px; background:var(--blue); color:white; font:inherit; font-weight:700; cursor:pointer; }
+    button:hover { background:#2345a8; } .errors { color:#a32626; padding-left:20px; margin:12px 0; }
+    .result { margin-top:22px; padding-top:18px; border-top:1px solid var(--line); } .result h3 { margin:0 0 10px; }
+    dl { display:grid; grid-template-columns:minmax(100px,auto) 1fr; gap:8px 14px; margin:0; }
+    dt { color:var(--muted); } dd { margin:0; overflow-wrap:anywhere; font-family:ui-monospace,Consolas,monospace; }
+    .table-wrap { overflow-x:auto; } table { border-collapse:collapse; width:100%; font-size:.94rem; } th,td { text-align:left; padding:9px 8px; border-bottom:1px solid var(--line); white-space:nowrap; } th { color:var(--muted); }
+    code { font-family:ui-monospace,Consolas,monospace; background:#f0f3f8; padding:2px 4px; border-radius:4px; }
+    footer { margin-top:22px; color:var(--muted); font-size:.92rem; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Analizador de representación de datos</h1>
+    <p>Explora cómo se representan los números en distintas bases y cómo se codifica el texto en Unicode y UTF-8.</p>
+  </header>
+  <div class="grid">
+    <section>
+      <h2>Conversión numérica</h2>
+      <p>Ingresa un entero entre 0 y 65 535 en base 2, 8, 10 o 16.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <label for="{{ number_form.number.id_for_label }}">{{ number_form.number.label }}</label>
+        {{ number_form.number }}
+        {% for error in number_form.number.errors %}<div class="errors" role="alert">{{ error }}</div>{% endfor %}
+        <label for="{{ number_form.base.id_for_label }}">{{ number_form.base.label }}</label>
+        {{ number_form.base }}
+        {% for error in number_form.base.errors %}<div class="errors" role="alert">{{ error }}</div>{% endfor %}
+        <button type="submit" name="number-submit" value="1">Convertir número</button>
+      </form>
+      {% if number_result %}
+      <div class="result" aria-live="polite">
+        <h3>Representaciones</h3>
+        <dl>
+          <dt>Decimal</dt><dd>{{ number_result.decimal }}</dd>
+          <dt>Binario (relleno a bytes)</dt><dd>{{ number_result.binary }}</dd>
+          <dt>Octal</dt><dd>{{ number_result.octal }}</dd>
+          <dt>Hexadecimal</dt><dd>{{ number_result.hexadecimal }}</dd>
+          <dt>Bits significativos</dt><dd>{{ number_result.bits }} bits</dd>
+          <dt>Espacio mínimo</dt><dd>{{ number_result.bytes }} byte{{ number_result.bytes|pluralize:"s" }}</dd>
+        </dl>
+      </div>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Codificación de texto</h2>
+      <p>Escribe hasta 20 caracteres. Cada carácter se analiza como punto de código Unicode y bytes UTF-8.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <label for="{{ text_form.text.id_for_label }}">{{ text_form.text.label }}</label>
+        {{ text_form.text }}
+        {% for error in text_form.text.errors %}<div class="errors" role="alert">{{ error }}</div>{% endfor %}
+        <button type="submit" name="text-submit" value="1">Analizar texto</button>
+      </form>
+      {% if text_result %}
+      <div class="result" aria-live="polite">
+        <h3>Carácter por carácter</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Carácter</th><th>Decimal</th><th>Punto de código</th><th>Hexadecimal</th><th>Bytes UTF-8</th></tr></thead>
+          <tbody>{% for item in text_result %}<tr>
+            <td><code>{% if item.character == " " %}(espacio){% else %}{{ item.character }}{% endif %}</code></td>
+            <td>{{ item.decimal }}</td><td>{{ item.codepoint }}</td><td>{{ item.hexadecimal }}</td><td><code>{{ item.utf8 }}</code></td>
+          </tr>{% endfor %}</tbody>
+        </table></div>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+  <footer>Aplicación educativa con Django · El binario se completa a grupos de 8 bits.</footer>
+</main>
+</body>
 </html>
