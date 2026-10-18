@@ -61,10 +61,6 @@ La aplicación usa la CPU para ejecutar Python y Django, la memoria RAM para man
 
 Docker aísla el proceso y el sistema de archivos de la aplicación, pero los contenedores Linux comparten el kernel del sistema operativo host. No incluyen un kernel propio: Docker utiliza mecanismos de aislamiento del kernel anfitrión, lo que hace al contenedor más ligero que una máquina virtual.
 
-## Video de demostración
-
-Graba un video de hasta 2 minutos que muestre una conversión válida, un error de validación, el análisis de un texto con `ñ`, la ejecución de `python manage.py test` y el contenedor activo con `docker stats`. Adjunta el video y la salida de `docker stats` a la entrega.
-
 ## Publicación
 
 El código fuente está en [Arquitectura-Comp-EXA1](https://github.com/Carlos888-per/Arquitectura-Comp-EXA1). Para publicar cambios en GitHub, ejecuta:
@@ -74,5 +70,3 @@ git add .
 git commit -m "Describe los cambios"
 git push
 ```
-
-GitHub muestra el código fuente. Para usar la aplicación en línea hace falta desplegarla en un servicio de hosting.
